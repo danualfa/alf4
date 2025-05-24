@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Penghitung Keuangan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 420px;
+            margin: 48px auto;
+            background: #fff;
+            padding: 32px 28px 28px 28px;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(33,147,176,0.18);
+        }
+        h2 {
+            text-align: center;
+            color: #2193b0;
+            letter-spacing: 1px;
+            margin-bottom: 28px;
+            font-weight: 600;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .summary-box {
+            flex: 1;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 0;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(33,147,176,0.06);
+        }
+        .summary-title {
+            font-size: 0.95em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        .summary-income {
+            color: #388e3c;
+            font-weight: 600;
+        }
+        .summary-expense {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+        .summary-total {
+            color: #2193b0;
+            font-weight: 600;
+        }
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+        input, select {
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            outline: none;
+            transition: border 0.2s;
+            background: #f8fafc;
+        }
+        input:focus, select:focus {
+            border: 1.5px solid #2193b0;
+        }
+        input[type="text"], input[type="number"] {
+            flex: 1 1 120px;
+        }
+        select {
+            flex: 0 0 120px;
+        }
+        button[type="submit"] {
+            background: linear-gradient(90deg, #6dd5ed 0%, #2193b0 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(33,147,176,0.08);
+        }
+        button[type="submit"]:hover {
+            background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 10px 0;
+        }
+        li {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 10px 14px;
+            box-shadow: 0 1px 4px rgba(33,147,176,0.06);
+            font-size: 1em;
+            flex-wrap: wrap;
+        }
+        .income {
+            border-left: 4px solid #4caf50;
+        }
+        .expense {
+            border-left: 4px solid #f44336;
+        }
+        .transaksi-info {
+            flex: 1;
+        }
+        .transaksi-deskripsi {
+            font-weight: 600;
+            color: #2193b0;
+        }
+        .transaksi-jumlah.income {
+            color: #388e3c;
+        }
+        .transaksi-jumlah.expense {
+            color: #d32f2f;
+        }
+        .transaksi-tanggal {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 2px;
+        }
+        li button {
+            background: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-left: 12px;
+            transition: background 0.2s;
+            align-self: center;
+        }
+        li button:hover {
+            background: #c62828;
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 18px 6px 16px 6px;
+            }
+            .summary {
+                flex-direction: column;
+                gap: 8px;
+            }
+            form {
+                flex-direction: column;
+                gap: 8px;
+            }
+            input, select, button[type="submit"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Penghitung Keuangan</h2>
+        <div class="summary">
+            <div class="summary-box">
+                <div class="summary-title">Pemasukan</div>
+                <div class="summary-income">Rp <span id="total-income">0</span></div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-title">Pengeluaran</div>
+                <div class="summary-expense">Rp <span id="total-expense">0</span></div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-title">Saldo</div>
+                <div class="summary-total">Rp <span id="total-keuangan">0</span></div>
+            </div>
+        </div>
+        <form id="form-transaksi">
+            <input type="text" id="deskripsi" placeholder="Deskripsi" required>
+            <input type="number" id="jumlah" placeholder="Jumlah" required>
+            <select id="tipe">
+                <option value="income">Pemasukan</option>
+                <option value="expense">Pengeluaran</option>
+            </select>
+            <button type="submit">Tambah</button>
+        </form>
+        <ul id="daftar-transaksi"></ul>
+    </div>
+    <script>
+        const form = document.getElementById('form-transaksi');
+        const daftarTransaksi = document.getElementById('daftar-transaksi');
+        const totalKeuangan = document.getElementById('total-keuangan');
+        const totalIncome = document.getElementById('total-income');
+        const totalExpense = document.getElementById('total-expense');
+        let transaksi = [];
+
+        function formatTanggal(date) {
+            return date.toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateUI() {
+            daftarTransaksi.innerHTML = '';
+            let total = 0;
+            let income = 0;
+            let expense = 0;
+            transaksi.forEach((t, idx) => {
+                const li = document.createElement('li');
+                li.className = t.tipe;
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'transaksi-info';
+
+                const deskripsiDiv = document.createElement('div');
+                deskripsiDiv.className = 'transaksi-deskripsi';
+                deskripsiDiv.textContent = t.deskripsi;
+
+                const jumlahDiv = document.createElement('div');
+                jumlahDiv.className = 'transaksi-jumlah ' + t.tipe;
+                jumlahDiv.textContent = (t.tipe === 'income' ? '+ ' : '- ') + 'Rp ' + t.jumlah.toLocaleString('id-ID');
+
+                const tanggalDiv = document.createElement('div');
+                tanggalDiv.className = 'transaksi-tanggal';
+                tanggalDiv.textContent = formatTanggal(new Date(t.tanggal));
+
+                infoDiv.appendChild(deskripsiDiv);
+                infoDiv.appendChild(jumlahDiv);
+                infoDiv.appendChild(tanggalDiv);
+
+                const btn = document.createElement('button');
+                btn.textContent = 'Hapus';
+                btn.onclick = () => {
+                    transaksi.splice(idx, 1);
+                    updateUI();
+                };
+
+                li.appendChild(infoDiv);
+                li.appendChild(btn);
+                daftarTransaksi.appendChild(li);
+
+                if (t.tipe === 'income') {
+                    income += t.jumlah;
+                    total += t.jumlah;
+                } else {
+                    expense += t.jumlah;
+                    total -= t.jumlah;
+                }
+            });
+            totalKeuangan.textContent = total.toLocaleString('id-ID');
+            totalIncome.textContent = income.toLocaleString('id-ID');
+            totalExpense.textContent = expense.toLocaleString('id-ID');
+        }
+
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            const deskripsi = document.getElementById('deskripsi').value.trim();
+            const jumlah = parseInt(document.getElementById('jumlah').value, 10);
+            const tipe = document.getElementById('tipe').value;
+            if (deskripsi && jumlah > 0) {
+                transaksi.push({ 
+                    deskripsi, 
+                    jumlah, 
+                    tipe, 
+                    tanggal: new Date().toISOString() 
+                });
+                form.reset();
+                updateUI();
+            }
+        };
+    </script>
+</body>
+</html>
+<!-- Navigasi Modern -->
+<nav style="position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg,#2193b0 0%,#6dd5ed 100%);box-shadow:0 2px 8px rgba(33,147,176,0.08);z-index:100;">
+    <div style="max-width:420px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;">
+        <span style="font-weight:600;font-size:1.15em;color:#fff;letter-spacing:1px;">Dompet Digital</span>
+        <a href="#" id="beranda-link" style="color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;">Beranda</a>
+    </div>
+</nav>
+<!-- Modal Beranda -->
+<div id="modal-beranda" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button id="close-modal" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Selamat Datang!</h3>
+        <p style="color:#444;font-size:1em;margin-bottom:10px;">Ini adalah aplikasi Dompet Digital sederhana untuk mencatat pemasukan dan pengeluaran Anda.</p>
+        <ul style="text-align:left;color:#2193b0;font-size:0.98em;margin:0 0 10px 0;padding-left:18px;">
+            <li>Tambah transaksi keuangan</li>
+            <li>Lihat ringkasan saldo</li>
+            <li>Hapus transaksi jika perlu</li>
+        </ul>
+        <button id="tutup-modal" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+<script>
+    // Geser kontainer ke bawah agar tidak tertutup nav
+    document.querySelector('.container').style.marginTop = '72px';
+
+    // Modal Beranda
+    const modal = document.getElementById('modal-beranda');
+    document.getElementById('beranda-link').onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = 'flex';
+    };
+    document.getElementById('close-modal').onclick = function() {
+        modal.style.display = 'none';
+    };
+    document.getElementById('tutup-modal').onclick = function() {
+        modal.style.display = 'none';
+    };
+    // Tutup modal jika klik di luar konten modal
+    modal.onclick = function(e) {
+        if (e.target === modal) modal.style.display = 'none';
+    };
+</script>
+<!-- Navigasi Tambahan -->
+<nav style="position:fixed;bottom:0;left:0;width:100%;background:linear-gradient(90deg,#2193b0 0%,#6dd5ed 100%);box-shadow:0 -2px 8px rgba(33,147,176,0.08);z-index:100;display:flex;justify-content:center;">
+    <div style="max-width:420px;width:100%;display:flex;align-items:center;justify-content:space-around;padding:10px 0;">
+        <a href="#" id="menu-riwayat" style="color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;">Riwayat</a>
+        <a href="#" id="menu-tentang" style="color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;">Tentang</a>
+        <a href="#" id="menu-bantuan" style="color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;">Bantuan</a>
+    </div>
+</nav>
+
+<!-- Modal Riwayat -->
+<div id="modal-riwayat" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Riwayat</h3>
+        <p style="color:#444;font-size:1em;margin-bottom:10px;">Menampilkan riwayat transaksi terakhir:</p>
+        <ul id="riwayat-list" style="text-align:left;color:#2193b0;font-size:0.98em;margin:0 0 10px 0;padding-left:18px;max-height:180px;overflow-y:auto;"></ul>
+        <button class="close-modal" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+
+<!-- Modal Tentang -->
+<div id="modal-tentang" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Tentang</h3>
+        <p style="color:#444;font-size:1em;margin-bottom:10px;">
+            Dompet Digital adalah aplikasi sederhana untuk mencatat pemasukan dan pengeluaran harian Anda.<br>
+            Dibuat dengan HTML, CSS, dan JavaScript.
+        </p>
+        <button class="close-modal" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+
+<!-- Modal Bantuan -->
+<div id="modal-bantuan" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Bantuan</h3>
+        <ul style="text-align:left;color:#2193b0;font-size:0.98em;margin:0 0 10px 0;padding-left:18px;">
+            <li>Isi deskripsi dan jumlah transaksi, lalu klik "Tambah".</li>
+            <li>Pilih tipe transaksi: pemasukan atau pengeluaran.</li>
+            <li>Transaksi akan muncul di daftar dan ringkasan saldo otomatis diperbarui.</li>
+            <li>Gunakan tombol "Hapus" untuk menghapus transaksi tertentu.</li>
+        </ul>
+        <button class="close-modal" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+
+<script>
+    // Fungsi buka/tutup modal
+    function showModal(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
+    function hideModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+    // Event menu bawah
+    document.getElementById('menu-riwayat').onclick = function(e) {
+        e.preventDefault();
+        // Isi riwayat transaksi (5 terakhir)
+        const riwayatList = document.getElementById('riwayat-list');
+        riwayatList.innerHTML = '';
+        if (window.transaksi && window.transaksi.length > 0) {
+            window.transaksi.slice(-5).reverse().forEach(function(t) {
+                const li = document.createElement('li');
+                li.textContent = (t.tipe === 'income' ? 'Pemasukan: ' : 'Pengeluaran: ') +
+                    t.deskripsi + ' (' + (t.tipe === 'income' ? '+ ' : '- ') + 'Rp ' +
+                    t.jumlah.toLocaleString('id-ID') + ') pada ' +
+                    (new Date(t.tanggal)).toLocaleDateString('id-ID', {
+                        year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                riwayatList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.textContent = 'Belum ada transaksi.';
+            riwayatList.appendChild(li);
+        }
+        showModal('modal-riwayat');
+    };
+    document.getElementById('menu-tentang').onclick = function(e) {
+        e.preventDefault();
+        showModal('modal-tentang');
+    };
+    document.getElementById('menu-bantuan').onclick = function(e) {
+        e.preventDefault();
+        showModal('modal-bantuan');
+    };
+    // Tutup semua modal tambahan
+    document.querySelectorAll('.close-modal').forEach(function(btn) {
+        btn.onclick = function() {
+            btn.closest('div[style*="background:#fff"]').parentElement.style.display = 'none';
+        };
+    });
+    // Tutup modal jika klik di luar konten modal
+    ['modal-riwayat','modal-tentang','modal-bantuan'].forEach(function(id){
+        const modal = document.getElementById(id);
+        modal.onclick = function(e) {
+            if (e.target === modal) modal.style.display = 'none';
+        };
+    });
+</script>
+<!-- Modal Bukti Transaksi -->
+<div id="modal-bukti" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:300;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button id="close-bukti" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Bukti Transaksi</h3>
+        <div id="bukti-content" style="color:#444;font-size:1em;margin-bottom:10px;text-align:left;"></div>
+        <button id="tutup-bukti" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+<script>
+    // Tambah tombol "Bukti" pada setiap transaksi
+    function updateUIWithBukti() {
+        daftarTransaksi.innerHTML = '';
+        let total = 0;
+        let income = 0;
+        let expense = 0;
+        transaksi.forEach((t, idx) => {
+            const li = document.createElement('li');
+            li.className = t.tipe;
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'transaksi-info';
+
+            const deskripsiDiv = document.createElement('div');
+            deskripsiDiv.className = 'transaksi-deskripsi';
+            deskripsiDiv.textContent = t.deskripsi;
+
+            const jumlahDiv = document.createElement('div');
+            jumlahDiv.className = 'transaksi-jumlah ' + t.tipe;
+            jumlahDiv.textContent = (t.tipe === 'income' ? '+ ' : '- ') + 'Rp ' + t.jumlah.toLocaleString('id-ID');
+
+            const tanggalDiv = document.createElement('div');
+            tanggalDiv.className = 'transaksi-tanggal';
+            tanggalDiv.textContent = formatTanggal(new Date(t.tanggal));
+
+            infoDiv.appendChild(deskripsiDiv);
+            infoDiv.appendChild(jumlahDiv);
+            infoDiv.appendChild(tanggalDiv);
+
+            // Tombol Bukti
+            const btnBukti = document.createElement('button');
+            btnBukti.textContent = 'Bukti';
+            btnBukti.style.background = '#2193b0';
+            btnBukti.style.marginLeft = '8px';
+            btnBukti.onclick = function() {
+                showBukti(t);
+            };
+
+            // Tombol Hapus
+            const btn = document.createElement('button');
+            btn.textContent = 'Hapus';
+            btn.onclick = () => {
+                transaksi.splice(idx, 1);
+                updateUIWithBukti();
+            };
+
+            li.appendChild(infoDiv);
+            li.appendChild(btnBukti);
+            li.appendChild(btn);
+            daftarTransaksi.appendChild(li);
+
+            if (t.tipe === 'income') {
+                income += t.jumlah;
+                total += t.jumlah;
+            } else {
+                expense += t.jumlah;
+                total -= t.jumlah;
+            }
+        });
+        totalKeuangan.textContent = total.toLocaleString('id-ID');
+        totalIncome.textContent = income.toLocaleString('id-ID');
+        totalExpense.textContent = expense.toLocaleString('id-ID');
+    }
+
+    // Fungsi tampilkan modal bukti
+    function showBukti(t) {
+        const konten = document.getElementById('bukti-content');
+        konten.innerHTML = `
+            <b>Deskripsi:</b> ${t.deskripsi}<br>
+            <b>Jumlah:</b> ${(t.tipe === 'income' ? '+ ' : '- ') + 'Rp ' + t.jumlah.toLocaleString('id-ID')}<br>
+            <b>Tipe:</b> ${t.tipe === 'income' ? 'Pemasukan' : 'Pengeluaran'}<br>
+            <b>Tanggal:</b> ${formatTanggal(new Date(t.tanggal))}
+        `;
+        document.getElementById('modal-bukti').style.display = 'flex';
+    }
+
+    // Event tutup modal bukti
+    document.getElementById('close-bukti').onclick = function() {
+        document.getElementById('modal-bukti').style.display = 'none';
+    };
+    document.getElementById('tutup-bukti').onclick = function() {
+        document.getElementById('modal-bukti').style.display = 'none';
+    };
+    document.getElementById('modal-bukti').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+
+    // Ganti updateUI di script utama
+    window.updateUI = updateUIWithBukti;
+    // Panggil updateUI pertama kali jika ada data
+    updateUIWithBukti();
+</script>
+<!-- Modal Login -->
+<div id="modal-login" style="display:flex;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:400;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Login Akun</h3>
+        <form id="form-login" autocomplete="off">
+            <input type="text" id="login-username" placeholder="Username" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <input type="password" id="login-password" placeholder="Password" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Login</button>
+        </form>
+        <div id="login-error" style="color:#d32f2f;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+<script>
+    // Simulasi user (username: user, password: 1234)
+    const USERNAME = "user";
+    const PASSWORD = "1234";
+    // Cek login di localStorage
+    function isLoggedIn() {
+        return localStorage.getItem('isLoggedIn') === 'true';
+    }
+    function showLogin() {
+        document.getElementById('modal-login').style.display = 'flex';
+    }
+    function hideLogin() {
+        document.getElementById('modal-login').style.display = 'none';
+    }
+    // Login logic
+    document.getElementById('form-login').onsubmit = function(e) {
+        e.preventDefault();
+        const u = document.getElementById('login-username').value.trim();
+        const p = document.getElementById('login-password').value;
+        if (u === USERNAME && p === PASSWORD) {
+            localStorage.setItem('isLoggedIn', 'true');
+            hideLogin();
+        } else {
+            const err = document.getElementById('login-error');
+            err.textContent = "Username atau password salah!";
+            err.style.display = 'block';
+        }
+    };
+    // Cegah akses sebelum login
+    if (!isLoggedIn()) {
+        showLogin();
+        // Disable semua input & tombol di halaman utama
+        document.querySelectorAll('input,select,button').forEach(el => {
+            if (!el.closest('#modal-login')) el.disabled = true;
+        });
+    } else {
+        hideLogin();
+    }
+    // Enable input setelah login
+    function enableAllInputs() {
+        document.querySelectorAll('input,select,button').forEach(el => {
+            el.disabled = false;
+        });
+    }
+    // Observer login
+    const loginObserver = new MutationObserver(function() {
+        if (!document.getElementById('modal-login').style.display || document.getElementById('modal-login').style.display === 'none') {
+            enableAllInputs();
+        }
+    });
+    loginObserver.observe(document.getElementById('modal-login'), { attributes: true, attributeFilter: ['style'] });
+
+    // Logout menu (opsional, tambahkan di nav jika ingin)
+    // Contoh: <a href="#" id="menu-logout">Logout</a>
+    // document.getElementById('menu-logout').onclick = function(e) {
+    //     e.preventDefault();
+    //     localStorage.removeItem('isLoggedIn');
+    //     location.reload();
+    // };
+</script>
+<!-- Modal Profil -->
+<div id="modal-profil" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-profil" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Profil</h3>
+        <div style="color:#444;font-size:1em;margin-bottom:10px;">
+            <b>Username:</b> user<br>
+            <b>Email:</b> user@email.com
+        </div>
+        <button class="close-modal-profil" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+<!-- Modal Settings -->
+<div id="modal-settings" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-settings" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Settings</h3>
+        <div style="color:#444;font-size:1em;margin-bottom:10px;">
+            <label>
+                <input type="checkbox" id="dark-mode-setting" style="margin-right:8px;">
+                Mode Gelap (Dark Mode)
+            </label>
+        </div>
+        <button class="close-modal-settings" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+<script>
+    // Tambah menu Profil & Settings ke nav bawah
+    const navBawah = document.querySelector('nav[style*="bottom:0"] .div, nav[style*="bottom:0"] > div');
+    if (navBawah) {
+        // Cek jika belum ada
+        if (!document.getElementById('menu-profil')) {
+            const profil = document.createElement('a');
+            profil.href = "#";
+            profil.id = "menu-profil";
+            profil.textContent = "Profil";
+            profil.style = "color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;";
+            navBawah.appendChild(profil);
+        }
+        if (!document.getElementById('menu-settings')) {
+            const settings = document.createElement('a');
+            settings.href = "#";
+            settings.id = "menu-settings";
+            settings.textContent = "Settings";
+            settings.style = "color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;";
+            navBawah.appendChild(settings);
+        }
+    }
+    // Event menu Profil & Settings
+    document.getElementById('menu-profil').onclick = function(e) {
+        e.preventDefault();
+        showModal('modal-profil');
+    };
+    document.getElementById('menu-settings').onclick = function(e) {
+        e.preventDefault();
+        // Set checkbox sesuai localStorage
+        document.getElementById('dark-mode-setting').checked = localStorage.getItem('darkMode') === 'true';
+        showModal('modal-settings');
+    };
+    // Dark mode logic
+    document.getElementById('dark-mode-setting').onchange = function() {
+        if (this.checked) {
+            document.body.style.background = "#222";
+            document.querySelectorAll('.container, [style*="background:#fff"]').forEach(function(el){
+                el.style.background = "#222";
+                el.style.color = "#eee";
+            });
+            localStorage.setItem('darkMode', 'true');
+        } else {
+            document.body.style.background = "";
+            document.querySelectorAll('.container, [style*="background:#222"]').forEach(function(el){
+                el.style.background = "#fff";
+                el.style.color = "";
+            });
+            localStorage.setItem('darkMode', 'false');
+        }
+    };
+    // Terapkan dark mode jika sudah aktif
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.getElementById('dark-mode-setting').checked = true;
+        document.body.style.background = "#222";
+        document.querySelectorAll('.container, [style*="background:#fff"]').forEach(function(el){
+            el.style.background = "#222";
+            el.style.color = "#eee";
+        });
+    }
+    // Tutup modal profil
+    document.querySelectorAll('.close-modal-profil').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-profil').style.display = 'none';
+        };
+    });
+    // Tutup modal jika klik di luar konten modal profil
+    document.getElementById('modal-profil').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    // Tutup modal settings
+    document.querySelectorAll('.close-modal-settings').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-settings').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-settings').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+</script>
+<!-- Avatar di kanan atas beranda -->
+<style>
+    #avatar-beranda {
+        position: fixed;
+        top: 16px;
+        right: 18px;
+        z-index: 150;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#2193b0 0%,#6dd5ed 100%);
+        box-shadow: 0 2px 8px rgba(33,147,176,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: box-shadow 0.2s;
+        border: 2.5px solid #fff;
+    }
+    #avatar-beranda img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+    }
+    #avatar-beranda:hover {
+        box-shadow: 0 4px 16px rgba(33,147,176,0.22);
+    }
+    @media (max-width:500px) {
+        #avatar-beranda {
+            top: 10px;
+            right: 8px;
+            width: 36px;
+            height: 36px;
+        }
+        #avatar-beranda img {
+            width: 30px;
+            height: 30px;
+        }
+    }
+</style>
+<div id="avatar-beranda" title="Profil">
+    <img id="img-avatar-beranda" src="https://ui-avatars.com/api/?name=U&background=2193b0&color=fff&rounded=true" alt="Avatar User">
+</div>
+<script>
+    // Klik avatar buka modal profil
+    document.getElementById('avatar-beranda').onclick = function() {
+        showModal('modal-profil');
+    };
+    // Sinkron avatar beranda dengan profil
+    function updateAvatarBeranda(src) {
+        document.getElementById('img-avatar-beranda').src = src;
+    }
+    // Inisialisasi avatar dari localStorage jika ada
+    if(localStorage.getItem('avatarUrl')) {
+        updateAvatarBeranda(localStorage.getItem('avatarUrl'));
+    }
+</script>
+
+<!-- Modal Edit Profil -->
+<div id="modal-edit-profil" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:300;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-edit-profil" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Edit Profil</h3>
+        <form id="form-edit-profil" autocomplete="off">
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.98em;color:#2193b0;">Ganti Avatar:</label><br>
+                <input type="file" id="edit-avatar" accept="image/*" style="margin-top:6px;">
+                <div id="preview-avatar" style="margin-top:8px;">
+                    <img id="img-preview-avatar" src="https://ui-avatars.com/api/?name=U&background=2193b0&color=fff&rounded=true" alt="Preview" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+                </div>
+            </div>
+            <input type="text" id="edit-username" placeholder="Username" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <input type="email" id="edit-email" placeholder="Email" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Simpan</button>
+        </form>
+        <div id="edit-profil-error" style="color:#d32f2f;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+
+<!-- Modal Simpan Edit Profil -->
+<div id="modal-simpan-edit-profil" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:350;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:320px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Profil Disimpan</h3>
+        <p style="color:#444;font-size:1em;margin-bottom:10px;">Perubahan profil berhasil disimpan.</p>
+        <button id="tutup-modal-simpan-edit-profil" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+
+<script>
+    // Data profil (simulasi, bisa dari localStorage)
+    function getProfil() {
+        return {
+            username: localStorage.getItem('profilUsername') || 'user',
+            email: localStorage.getItem('profilEmail') || 'user@email.com',
+            avatar: localStorage.getItem('avatarUrl') || 'https://ui-avatars.com/api/?name=U&background=2193b0&color=fff&rounded=true'
+        };
+    }
+    function setProfil({username, email, avatar}) {
+        localStorage.setItem('profilUsername', username);
+        localStorage.setItem('profilEmail', email);
+        if (avatar) localStorage.setItem('avatarUrl', avatar);
+    }
+    // Buka modal edit profil dari modal profil
+    if(!document.getElementById('btn-edit-profil')) {
+        var btnEdit = document.createElement('button');
+        btnEdit.id = 'btn-edit-profil';
+        btnEdit.textContent = 'Edit Profil';
+        btnEdit.style = "background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;";
+        var modalProfil = document.querySelector('#modal-profil > div');
+        if(modalProfil) modalProfil.appendChild(btnEdit);
+    }
+    document.getElementById('btn-edit-profil').onclick = function() {
+        // Isi form edit profil dengan data sekarang
+        var profil = getProfil();
+        document.getElementById('edit-username').value = profil.username;
+        document.getElementById('edit-email').value = profil.email;
+        document.getElementById('img-preview-avatar').src = profil.avatar;
+        document.getElementById('edit-avatar').value = "";
+        document.getElementById('modal-edit-profil').style.display = 'flex';
+    };
+    // Preview avatar baru
+    document.getElementById('edit-avatar').onchange = function(e) {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('img-preview-avatar').src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    // Simpan edit profil
+    document.getElementById('form-edit-profil').onsubmit = function(e) {
+        e.preventDefault();
+        const username = document.getElementById('edit-username').value.trim();
+        const email = document.getElementById('edit-email').value.trim();
+        let avatar = document.getElementById('img-preview-avatar').src;
+        if(!username || !email) {
+            document.getElementById('edit-profil-error').textContent = "Username dan email wajib diisi!";
+            document.getElementById('edit-profil-error').style.display = 'block';
+            return;
+        }
+        setProfil({username, email, avatar});
+        // Update tampilan profil
+        document.querySelector('#modal-profil b:nth-child(1)').nextSibling.textContent = " " + username;
+        document.querySelector('#modal-profil b:nth-child(2)').nextSibling.textContent = " " + email;
+        updateAvatarBeranda(avatar);
+        document.getElementById('modal-edit-profil').style.display = 'none';
+        // Tampilkan modal simpan
+        document.getElementById('modal-simpan-edit-profil').style.display = 'flex';
+    };
+    // Tutup modal edit profil
+    document.querySelectorAll('.close-modal-edit-profil').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-edit-profil').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-edit-profil').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    // Tutup modal simpan edit profil
+    document.getElementById('tutup-modal-simpan-edit-profil').onclick = function() {
+        document.getElementById('modal-simpan-edit-profil').style.display = 'none';
+    };
+    document.getElementById('modal-simpan-edit-profil').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    // Sinkron tampilan profil saat buka modal profil
+    document.getElementById('menu-profil').onclick = function(e) {
+        e.preventDefault();
+        var profil = getProfil();
+        var modalProfil = document.querySelector('#modal-profil > div');
+        if(modalProfil) {
+            var b = modalProfil.querySelectorAll('b');
+            if(b.length >= 2) {
+                b[0].nextSibling.textContent = " " + profil.username;
+                b[1].nextSibling.textContent = " " + profil.email;
+            }
+        }
+        showModal('modal-profil');
+    };
+    // Saat buka modal profil dari avatar
+    document.getElementById('avatar-beranda').onclick = function() {
+        var profil = getProfil();
+        var modalProfil = document.querySelector('#modal-profil > div');
+        if(modalProfil) {
+            var b = modalProfil.querySelectorAll('b');
+            if(b.length >= 2) {
+                b[0].nextSibling.textContent = " " + profil.username;
+                b[1].nextSibling.textContent = " " + profil.email;
+            }
+        }
+        showModal('modal-profil');
+    };
+</script>
+<!-- Modal QRIS -->
+<div id="modal-qris" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-qris" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Pembayaran QRIS</h3>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ContohQRIS" alt="QRIS" style="margin-bottom:12px;border-radius:8px;">
+        <p style="color:#444;font-size:1em;margin-bottom:10px;">Scan kode QRIS ini untuk melakukan pembayaran.</p>
+        <button class="close-modal-qris" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+<!-- Modal Top Up Pulsa -->
+<div id="modal-topup-pulsa" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-topup-pulsa" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Top Up Pulsa</h3>
+        <form id="form-topup-pulsa" autocomplete="off">
+            <input type="text" id="no-hp-pulsa" placeholder="Nomor HP" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <select id="nominal-pulsa" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+                <option value="">Pilih Nominal</option>
+                <option value="10000">Rp 10.000</option>
+                <option value="20000">Rp 20.000</option>
+                <option value="50000">Rp 50.000</option>
+                <option value="100000">Rp 100.000</option>
+            </select>
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Top Up</button>
+        </form>
+        <div id="topup-pulsa-msg" style="color:#388e3c;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+<!-- Modal Top Up DANA -->
+<div id="modal-topup-dana" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-topup-dana" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Top Up DANA</h3>
+        <form id="form-topup-dana" autocomplete="off">
+            <input type="text" id="no-dana" placeholder="Nomor DANA" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <select id="nominal-dana" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+                <option value="">Pilih Nominal</option>
+                <option value="20000">Rp 20.000</option>
+                <option value="50000">Rp 50.000</option>
+                <option value="100000">Rp 100.000</option>
+                <option value="200000">Rp 200.000</option>
+            </select>
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Top Up</button>
+        </form>
+        <div id="topup-dana-msg" style="color:#388e3c;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+<!-- Modal Top Up OVO -->
+<div id="modal-topup-ovo" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-topup-ovo" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Top Up OVO</h3>
+        <form id="form-topup-ovo" autocomplete="off">
+            <input type="text" id="no-ovo" placeholder="Nomor OVO" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <select id="nominal-ovo" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+                <option value="">Pilih Nominal</option>
+                <option value="20000">Rp 20.000</option>
+                <option value="50000">Rp 50.000</option>
+                <option value="100000">Rp 100.000</option>
+                <option value="200000">Rp 200.000</option>
+            </select>
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Top Up</button>
+        </form>
+        <div id="topup-ovo-msg" style="color:#388e3c;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+<!-- Modal Top Up GoPay -->
+<div id="modal-topup-gopay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-topup-gopay" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Top Up GoPay</h3>
+        <form id="form-topup-gopay" autocomplete="off">
+            <input type="text" id="no-gopay" placeholder="Nomor GoPay" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+            <select id="nominal-gopay" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;">
+                <option value="">Pilih Nominal</option>
+                <option value="20000">Rp 20.000</option>
+                <option value="50000">Rp 50.000</option>
+                <option value="100000">Rp 100.000</option>
+                <option value="200000">Rp 200.000</option>
+            </select>
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Top Up</button>
+        </form>
+        <div id="topup-gopay-msg" style="color:#388e3c;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+<!-- Modal Menu Lainnya -->
+<div id="modal-menu-lainnya" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:340px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <button class="close-modal-menu-lainnya" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.3em;color:#2193b0;cursor:pointer;">&times;</button>
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Menu Lainnya</h3>
+        <ul style="text-align:left;color:#2193b0;font-size:0.98em;margin:0 0 10px 0;padding-left:18px;">
+            <li><a href="#" id="menu-qris-link" style="color:#2193b0;text-decoration:underline;">Pembayaran QRIS</a></li>
+            <li><a href="#" id="menu-topup-pulsa-link" style="color:#2193b0;text-decoration:underline;">Top Up Pulsa</a></li>
+            <li><a href="#" id="menu-topup-dana-link" style="color:#2193b0;text-decoration:underline;">Top Up DANA</a></li>
+            <li><a href="#" id="menu-topup-ovo-link" style="color:#2193b0;text-decoration:underline;">Top Up OVO</a></li>
+            <li><a href="#" id="menu-topup-gopay-link" style="color:#2193b0;text-decoration:underline;">Top Up GoPay</a></li>
+        </ul>
+        <button class="close-modal-menu-lainnya" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>
+</div>
+<script>
+    // Tambah menu "Lainnya" ke nav bawah jika belum ada
+    (function() {
+        var navBawah = document.querySelector('nav[style*="bottom:0"] > div');
+        if (navBawah && !document.getElementById('menu-lainnya')) {
+            var lainnya = document.createElement('a');
+            lainnya.href = "#";
+            lainnya.id = "menu-lainnya";
+            lainnya.textContent = "Lainnya";
+            lainnya.style = "color:#fff;text-decoration:none;font-weight:500;font-size:1em;transition:opacity 0.2s;opacity:0.85;";
+            navBawah.appendChild(lainnya);
+        }
+    })();
+
+    // Event menu Lainnya
+    document.getElementById('menu-lainnya').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-menu-lainnya').style.display = 'flex';
+    };
+    // Tutup modal Menu Lainnya
+    document.querySelectorAll('.close-modal-menu-lainnya').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-menu-lainnya').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-menu-lainnya').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+
+    // Event QRIS
+    document.getElementById('menu-qris-link').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-menu-lainnya').style.display = 'none';
+        document.getElementById('modal-qris').style.display = 'flex';
+    };
+    document.querySelectorAll('.close-modal-qris').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-qris').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-qris').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+
+    // Event Top Up Pulsa
+    document.getElementById('menu-topup-pulsa-link').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-menu-lainnya').style.display = 'none';
+        document.getElementById('modal-topup-pulsa').style.display = 'flex';
+    };
+    document.querySelectorAll('.close-modal-topup-pulsa').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-topup-pulsa').style.display = 'none';
+            document.getElementById('topup-pulsa-msg').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-topup-pulsa').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    document.getElementById('form-topup-pulsa').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('topup-pulsa-msg').textContent = "Top up pulsa berhasil diproses!";
+        document.getElementById('topup-pulsa-msg').style.display = 'block';
+        setTimeout(function(){
+            document.getElementById('modal-topup-pulsa').style.display = 'none';
+            document.getElementById('topup-pulsa-msg').style.display = 'none';
+        }, 1500);
+    };
+
+    // Event Top Up DANA
+    document.getElementById('menu-topup-dana-link').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-menu-lainnya').style.display = 'none';
+        document.getElementById('modal-topup-dana').style.display = 'flex';
+    };
+    document.querySelectorAll('.close-modal-topup-dana').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-topup-dana').style.display = 'none';
+            document.getElementById('topup-dana-msg').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-topup-dana').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    document.getElementById('form-topup-dana').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('topup-dana-msg').textContent = "Top up DANA berhasil diproses!";
+        document.getElementById('topup-dana-msg').style.display = 'block';
+        setTimeout(function(){
+            document.getElementById('modal-topup-dana').style.display = 'none';
+            document.getElementById('topup-dana-msg').style.display = 'none';
+        }, 1500);
+    };
+
+    // Event Top Up OVO
+    document.getElementById('menu-topup-ovo-link').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-menu-lainnya').style.display = 'none';
+        document.getElementById('modal-topup-ovo').style.display = 'flex';
+    };
+    document.querySelectorAll('.close-modal-topup-ovo').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-topup-ovo').style.display = 'none';
+            document.getElementById('topup-ovo-msg').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-topup-ovo').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    document.getElementById('form-topup-ovo').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('topup-ovo-msg').textContent = "Top up OVO berhasil diproses!";
+        document.getElementById('topup-ovo-msg').style.display = 'block';
+        setTimeout(function(){
+            document.getElementById('modal-topup-ovo').style.display = 'none';
+            document.getElementById('topup-ovo-msg').style.display = 'none';
+        }, 1500);
+    };
+
+    // Event Top Up GoPay
+    document.getElementById('menu-topup-gopay-link').onclick = function(e) {
+        e.preventDefault();
+        document.getElementById('modal-menu-lainnya').style.display = 'none';
+        document.getElementById('modal-topup-gopay').style.display = 'flex';
+    };
+    document.querySelectorAll('.close-modal-topup-gopay').forEach(function(btn) {
+        btn.onclick = function() {
+            document.getElementById('modal-topup-gopay').style.display = 'none';
+            document.getElementById('topup-gopay-msg').style.display = 'none';
+        };
+    });
+    document.getElementById('modal-topup-gopay').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    document.getElementById('form-topup-gopay').onsubmit = function(e) {
+        e.preventDefault();
+        document.getElementById('topup-gopay-msg').textContent = "Top up GoPay berhasil diproses!";
+        document.getElementById('topup-gopay-msg').style.display = 'block';
+        setTimeout(function(){
+            document.getElementById('modal-topup-gopay').style.display = 'none';
+            document.getElementById('topup-gopay-msg').style.display = 'none';
+        }, 1500);
+    };
+</script>
+<!-- Modal PIN Keamanan -->
+<div id="modal-pin" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:600;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;max-width:320px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+        <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">PIN Keamanan</h3>
+        <form id="form-pin" autocomplete="off">
+            <input type="password" id="input-pin" maxlength="6" placeholder="Masukkan PIN" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;text-align:center;font-size:1.2em;letter-spacing:8px;">
+            <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Lanjutkan</button>
+        </form>
+        <div id="pin-error" style="color:#d32f2f;font-size:0.98em;margin-top:8px;display:none;"></div>
+    </div>
+</div>
+<script>
+    // PIN default (simulasi, bisa diubah user)
+    const PIN_KEY = "pinKeamanan";
+    function getPin() {
+        return localStorage.getItem(PIN_KEY) || "123456";
+    }
+    function setPin(pin) {
+        localStorage.setItem(PIN_KEY, pin);
+    }
+
+    // Simpan submit transaksi yang tertunda
+    let pendingTransaksiSubmit = null;
+
+    // Intercept submit transaksi
+    const formTransaksi = document.getElementById('form-transaksi');
+    formTransaksi.addEventListener('submit', function(e) {
+        if (!window._pinVerified) {
+            e.preventDefault();
+            pendingTransaksiSubmit = () => formTransaksi.requestSubmit();
+            showPinModal();
+        }
+    });
+
+    // Modal PIN logic
+    function showPinModal() {
+        document.getElementById('modal-pin').style.display = 'flex';
+        document.getElementById('input-pin').value = '';
+        document.getElementById('pin-error').style.display = 'none';
+        setTimeout(() => document.getElementById('input-pin').focus(), 100);
+    }
+    function hidePinModal() {
+        document.getElementById('modal-pin').style.display = 'none';
+    }
+
+    document.getElementById('form-pin').onsubmit = function(e) {
+        e.preventDefault();
+        const pin = document.getElementById('input-pin').value.trim();
+        if (pin === getPin()) {
+            window._pinVerified = true;
+            hidePinModal();
+            if (typeof pendingTransaksiSubmit === 'function') {
+                // submit ulang transaksi
+                setTimeout(() => {
+                    pendingTransaksiSubmit();
+                    window._pinVerified = false;
+                    pendingTransaksiSubmit = null;
+                }, 100);
+            }
+        } else {
+            document.getElementById('pin-error').textContent = "PIN salah!";
+            document.getElementById('pin-error').style.display = 'block';
+        }
+    };
+    // Tutup modal jika klik di luar
+    document.getElementById('modal-pin').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+
+    // Tambahkan menu ganti PIN di Settings
+    (function() {
+        var modalSettings = document.querySelector('#modal-settings > div');
+        if (modalSettings && !document.getElementById('btn-ganti-pin')) {
+            var btnGantiPin = document.createElement('button');
+            btnGantiPin.id = 'btn-ganti-pin';
+            btnGantiPin.textContent = 'Ganti PIN Keamanan';
+            btnGantiPin.style = "background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;";
+            modalSettings.appendChild(btnGantiPin);
+        }
+    })();
+
+    // Modal ganti PIN
+    if (!document.getElementById('modal-ganti-pin')) {
+        var modalGantiPin = document.createElement('div');
+        modalGantiPin.id = 'modal-ganti-pin';
+        modalGantiPin.style = "display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(33,147,176,0.18);z-index:700;align-items:center;justify-content:center;";
+        modalGantiPin.innerHTML = `
+            <div style="background:#fff;border-radius:14px;max-width:320px;width:90%;padding:28px 20px 20px 20px;box-shadow:0 8px 32px rgba(33,147,176,0.18);text-align:center;position:relative;">
+                <h3 style="color:#2193b0;margin-bottom:12px;font-weight:600;">Ganti PIN Keamanan</h3>
+                <form id="form-ganti-pin" autocomplete="off">
+                    <input type="password" id="old-pin" maxlength="6" placeholder="PIN Lama" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;text-align:center;font-size:1.2em;letter-spacing:8px;">
+                    <input type="password" id="new-pin" maxlength="6" placeholder="PIN Baru" required style="width:90%;margin-bottom:10px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;text-align:center;font-size:1.2em;letter-spacing:8px;">
+                    <input type="password" id="repeat-pin" maxlength="6" placeholder="Ulangi PIN Baru" required style="width:90%;margin-bottom:14px;padding:10px;border-radius:6px;border:1px solid #e0e0e0;text-align:center;font-size:1.2em;letter-spacing:8px;">
+                    <button type="submit" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;width:100%;">Simpan PIN</button>
+                </form>
+                <div id="ganti-pin-error" style="color:#d32f2f;font-size:0.98em;margin-top:8px;display:none;"></div>
+                <button id="tutup-ganti-pin" style="background:linear-gradient(90deg,#6dd5ed 0%,#2193b0 100%);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:600;cursor:pointer;margin-top:8px;">Tutup</button>
+            </div>
+        `;
+        document.body.appendChild(modalGantiPin);
+    }
+    document.getElementById('btn-ganti-pin').onclick = function() {
+        document.getElementById('modal-ganti-pin').style.display = 'flex';
+        document.getElementById('form-ganti-pin').reset();
+        document.getElementById('ganti-pin-error').style.display = 'none';
+    };
+    document.getElementById('tutup-ganti-pin').onclick = function() {
+        document.getElementById('modal-ganti-pin').style.display = 'none';
+    };
+    document.getElementById('modal-ganti-pin').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+    };
+    document.getElementById('form-ganti-pin').onsubmit = function(e) {
+        e.preventDefault();
+        const oldPin = document.getElementById('old-pin').value.trim();
+        const newPin = document.getElementById('new-pin').value.trim();
+        const repeatPin = document.getElementById('repeat-pin').value.trim();
+        const err = document.getElementById('ganti-pin-error');
+        if (oldPin !== getPin()) {
+            err.textContent = "PIN lama salah!";
+            err.style.display = 'block';
+            return;
+        }
+        if (newPin.length < 4 || newPin.length > 6 || !/^\d+$/.test(newPin)) {
+            err.textContent = "PIN baru harus 4-6 digit angka!";
+            err.style.display = 'block';
+            return;
+        }
+        if (newPin !== repeatPin) {
+            err.textContent = "PIN baru tidak sama!";
+            err.style.display = 'block';
+            return;
+        }
+        setPin(newPin);
+        err.style.display = 'none';
+        document.getElementById('modal-ganti-pin').style.display = 'none';
+        alert("PIN berhasil diganti!");
+    };
+</script>
